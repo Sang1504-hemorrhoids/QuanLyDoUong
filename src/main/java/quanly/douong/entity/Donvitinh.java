@@ -3,11 +3,11 @@ package quanly.douong.entity;
 import java.util.Date;
 
 public class Donvitinh {
-    private Integer maHoadon;
+    private String maHoadon;
     private boolean trangthai;
     private Float tongtien;
     private Date ngayKhoitao;
-    private Integer maThanhvien;
-    private Integer maKhuyenmai;
-    private Integer maKhachhang;
+    private String maThanhvien;
+    private String maKhuyenmai;
+    private String maKhachhang;
 }

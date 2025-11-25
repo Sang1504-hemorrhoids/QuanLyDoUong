@@ -1,10 +1,10 @@
 package quanly.douong.entity;
 
 public class Hoadon {
-    private Integer maHoadon;
+    private String maHoadon;
     private boolean trangthai;
     private Float tongtien;
-    private Integer maThanhvien;
-    private Integer maKhuyenmai;
-    private Integer maKhachhang;
+    private String maThanhvien;
+    private String maKhuyenmai;
+    private String maKhachhang;
 }

@@ -1,10 +1,10 @@
 package quanly.douong.entity;
 
 public class HoadonChitiet {
-    private Integer maHoadonChitiet;
+    private String maHoadonChitiet;
     private Integer soLuong;
     private Float giaBan;
-    private Integer maHoadon;
-    private Integer maSanpham;
-    private Integer maDonvitinh;
+    private String maHoadon;
+    private String maSanpham;
+    private String maDonvitinh;
 }
