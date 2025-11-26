@@ -1,98 +1,97 @@
-CREATE DATABASE quanlydouong;
+CREATE DATABASE QLDO;
 GO
-USE quanlydouong;
+USE QLDO;
 GO
 
-CREATE TABLE ThanhVien
+CREATE TABLE Users
 (
-  MaThanhvien VARCHAR(10) NOT NULL,
-  TenThanhvien NVARCHAR(50) NOT NULL,
-  Matkhau VARCHAR(15) NOT NULL,
-  Chucvu NVARCHAR(15) NOT NULL,
-  Trangthai BIT DEFAULT 1,
-  PRIMARY KEY (MaThanhvien)
+  UserId VARCHAR(10) NOT NULL,
+  Username NVARCHAR(50) NOT NULL,
+  Password VARCHAR(15) NOT NULL,
+  Role NVARCHAR(15) NOT NULL,
+  Status BIT DEFAULT 1,
+  PRIMARY KEY (UserId)
 );
 
-CREATE TABLE Khach
+CREATE TABLE Customers
 (
-  MaKhachhang VARCHAR(10) NOT NULL,
-  TenKhachhang NVARCHAR(50) NOT NULL,
-  Sodienthoai INT NOT NULL,
-  Diachi NVARCHAR(50) NOT NULL,
+  CustomerId VARCHAR(10) NOT NULL,
+  CustomerName NVARCHAR(50) NOT NULL,
+  PhoneNumber INT NOT NULL,
+  Address NVARCHAR(50) NOT NULL,
   Email VARCHAR(50) NOT NULL,
-  PRIMARY KEY (MaKhachhang)
+  PRIMARY KEY (CustomerId)
 );
 
-CREATE TABLE Loaidouong
+CREATE TABLE Categories
 (
-  Maloai VARCHAR(10) NOT NULL,
-  Tenloai NVARCHAR(50) NOT NULL,
-  Mota NVARCHAR(50) NOT NULL,
-  PRIMARY KEY (Maloai)
+  CategoryId VARCHAR(10) NOT NULL,
+  Name NVARCHAR(50) NOT NULL,
+  Desciption NVARCHAR(50) NOT NULL,
+  PRIMARY KEY (CategoryId)
 );
 
-CREATE TABLE Khuyenmai
+CREATE TABLE Promotion
 (
-  MaKhuyenmai VARCHAR(10) NOT NULL,
-  TenKhuyenmai NVARCHAR(50) NOT NULL,
-  Giamgia FLOAT NOT NULL,
-  Ngaybatdau DATE NOT NULL,
-  Ngayketthuc DATE NOT NULL,
-  Trangthai BIT,
-  PRIMARY KEY (MaKhuyenmai)
+  PromotionId VARCHAR(10) NOT NULL,
+  PromoName NVARCHAR(50) NOT NULL,
+  Discount FLOAT NOT NULL,
+  StartDate DATE NOT NULL,
+  EndDate DATE NOT NULL,
+  Status BIT,
+  PRIMARY KEY (PromotionId)
 );
 
-CREATE TABLE Donvitinh
+CREATE TABLE UnitConversion
 (
-  MaDonvitinh VARCHAR(10) NOT NULL,
-  MaSanpham VARCHAR(10) NOT NULL,
-  TenDonvitinh NVARCHAR(10) NOT NULL,
-  Hequydoi INT NOT NULL,
-  IsDonvi BIT,
-  PRIMARY KEY (MaDonvitinh)
+  Id VARCHAR(10) NOT NULL,
+  UnitName NVARCHAR(10) NOT NULL,
+  Factor INT NOT NULL,
+  IsBaseunit BIT,
+  PRIMARY KEY (Id)
 );
 
-CREATE TABLE Hoadon
+CREATE TABLE Bills
 (
-  MaHoadon VARCHAR(10) NOT NULL,
-  Trangthai BIT,
-  Tongtien FLOAT NOT NULL,
-  Ngaykhoitao DATE NOT NULL,
-  MaThanhvien VARCHAR(10) NOT NULL,
-  MaKhuyenmai VARCHAR(10) NOT NULL,
-  MaKhachhang VARCHAR(10) NOT NULL,
-  PRIMARY KEY (MaHoadon),
-  FOREIGN KEY (MaThanhvien) REFERENCES ThanhVien(MaThanhvien),
-  FOREIGN KEY (MaKhuyenmai) REFERENCES Khuyenmai(MaKhuyenmai),
-  FOREIGN KEY (MaKhachhang) REFERENCES Khach(MaKhachhang)
+  BillId VARCHAR(10) NOT NULL,
+  Total FLOAT NOT NULL,
+  StartDate DATE NOT NULL,
+  Status BIT,
+  UserId VARCHAR(10) NOT NULL,
+  PromotionId VARCHAR(10) NOT NULL,
+  CustomerId VARCHAR(10) NOT NULL,
+  PRIMARY KEY (BillId),
+  FOREIGN KEY (UserId) REFERENCES Users(UserId),
+  FOREIGN KEY (PromotionId) REFERENCES Promotion(PromotionId),
+  FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId)
 );
 GO
 
-CREATE TABLE Sanpham
+CREATE TABLE Products
 (
-  MaSanpham VARCHAR(10) NOT NULL,
-  TenSanpham NVARCHAR(50) NOT NULL,
-  Soluong INT NOT NULL,
-  Dongia FLOAT NOT NULL,
-  Giaban FLOAT NOT NULL,
-  Trangthai BIT,
-  Maloai VARCHAR(10) NOT NULL,
-  MaDonvitinh VARCHAR(10) NOT NULL,
-  PRIMARY KEY (MaSanpham),
-  FOREIGN KEY (Maloai) REFERENCES Loaidouong(Maloai),
-  FOREIGN KEY (MaDonvitinh) REFERENCES Donvitinh(MaDonvitinh)
+  ProductId VARCHAR(10) NOT NULL,
+  Name NVARCHAR(50) NOT NULL,
+  Quantity INT NOT NULL,
+  SalePrice FLOAT NOT NULL,
+  CostPrice FLOAT NOT NULL,
+  Status BIT,
+  CategoryId VARCHAR(10) NOT NULL,
+  Id VARCHAR(10) NOT NULL,
+  PRIMARY KEY (ProductId),
+  FOREIGN KEY (CategoryId) REFERENCES Categories(CategoryId),
+  FOREIGN KEY (Id) REFERENCES UnitConversion(Id)
 );
 
-CREATE TABLE Hoadon_chitiet
+CREATE TABLE Bill_Details
 (
-  MaHoadonChitiet VARCHAR(10) NOT NULL,
-  Soluong INT NOT NULL,
-  Giaban FLOAT NOT NULL,
-  MaHoadon VARCHAR(10) NOT NULL,
-  MaSanpham VARCHAR(10) NOT NULL,
-  MaDonvitinh VARCHAR(10) NOT NULL,
-  PRIMARY KEY (MaHoadonChitiet),
-  FOREIGN KEY (MaHoadon) REFERENCES Hoadon(MaHoadon),
-  FOREIGN KEY (MaSanpham) REFERENCES Sanpham(MaSanpham),
-  FOREIGN KEY (MaDonvitinh) REFERENCES Donvitinh(MaDonvitinh)
+  BillDetail_Id VARCHAR(10) NOT NULL,
+  Quantity INT NOT NULL,
+  UnitPrice FLOAT NOT NULL,
+  BillId VARCHAR(10) NOT NULL,
+  ProductId VARCHAR(10) NOT NULL,
+  Id VARCHAR(10) NOT NULL,
+  PRIMARY KEY (BillDetail_Id),
+  FOREIGN KEY (BillId) REFERENCES Bills(BillId),
+  FOREIGN KEY (ProductId) REFERENCES Products(ProductId),
+  FOREIGN KEY (Id) REFERENCES UnitConversion(Id)
 );

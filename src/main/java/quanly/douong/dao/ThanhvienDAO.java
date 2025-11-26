@@ -1,7 +1,7 @@
 package quanly.douong.dao;
 
-import quanly.douong.entity.Thanhvien;
+import quanly.douong.entity.User;
 
-public interface ThanhvienDAO extends CrudDAO<Thanhvien, String>{
+public interface ThanhvienDAO extends CrudDAO<User, String>{
     
 }
