@@ -1,23 +1,46 @@
 package quanly.douong.ui;
 
+import quanly.douong.controller.LoginController;
+import quanly.douong.dao.UserDAO;
+import quanly.douong.dao.impl.UserDAOImpl;
+import quanly.douong.entity.User;
+import quanly.douong.util.XAuth;
+import quanly.douong.util.XDialog;
+
 import javax.swing.*;
+import quanly.douong.controller.WelcomeController;
 
-public class Login extends javax.swing.JDialog {
+public class LoginJDialog extends javax.swing.JDialog implements LoginController {
 
-    /**
-     * Creates new form Login
-     */
-    public Login(java.awt.Frame parent, boolean modal) {
+    public LoginJDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        setLocationRelativeTo(null);
+    }
+    
+    public void open() {
+        this.setLocationRelativeTo(null);
     }
 
     public void login() {
         String username = txtUser.getText();
         String password = String.valueOf(txtPass.getPassword());
-        if(username.equals("admin") && password.equals("admin")) {
-            JOptionPane.
+
+        if(username.trim().isBlank() || password.trim().isBlank()) {
+            XDialog.alert("Tên đăng nhập hoặc mật khẩu không được để trống!");
+        } else {
+            UserDAO dao = new UserDAOImpl();
+            User user = dao.findById(username);
+
+            if(user == null) {
+                XDialog.alert("Sai tên đăng nhập!");
+            } else if (!password.equals(user.getPassword())) {
+                XDialog.alert("Sai mật khẩu đăng nhập!");
+            } else if (!user.isStatus()) {
+                XDialog.alert("Tài khoản của bạn đã bị khóa quyền truy cập!");
+            } else {
+                XAuth.user = user;
+                this.dispose();
+            }
         }
     }
 
@@ -41,8 +64,13 @@ public class Login extends javax.swing.JDialog {
         txtPass = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/quanly/douong/icons/logo.png"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/quanly/douong/img/icons/logo.png"))); // NOI18N
 
         jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 48)); // NOI18N
         jLabel2.setText("Đăng nhập");
@@ -124,7 +152,7 @@ public class Login extends javax.swing.JDialog {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(7, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -137,8 +165,12 @@ public class Login extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-
+        this.login();
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        this.open();
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -157,20 +189,21 @@ public class Login extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Login dialog = new Login(new javax.swing.JFrame(), true);
+                LoginJDialog dialog = new LoginJDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
