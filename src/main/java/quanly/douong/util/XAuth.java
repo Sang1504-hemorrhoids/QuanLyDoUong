@@ -6,7 +6,7 @@ public class XAuth {
     public static User user = User.builder()
             .username("user")
             .password("123")
-            .fullName("Tran Nguyen A")
+            .fullname("Tran Nguyen A")
             .role(false)
             .status(true)
             .build();

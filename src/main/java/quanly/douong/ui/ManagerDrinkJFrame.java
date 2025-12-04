@@ -1,9 +1,18 @@
 package quanly.douong.ui;
 
+import javax.swing.JFrame;
 import quanly.douong.controller.ManagerDrinkController;
 import quanly.douong.util.XAuth;
 
+import java.awt.*;
+import quanly.douong.ui.manager.ProductJPanel;
+import quanly.douong.ui.user.BillJPanel;
+
 public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDrinkController {
+
+    private CardLayout cardLayout;
+    private ProductJPanel cardProduct = new ProductJPanel();
+    private BillJPanel cardBill = new BillJPanel();
 
     public ManagerDrinkJFrame() {
         initComponents();
@@ -13,121 +22,300 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
     @Override
     public void init() {
         this.setLocationRelativeTo(null);
-        this.showWelcomeJDialog(this);
-        this.showLoginJDialog(this);
-        if(!XAuth.user.isRole()) {
-            tabs.removeTabAt(1);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);       //full-screen
+        updateUser();
+
+        setCardLayout();
+
+        updateActiveLabel(lblProduct);
+
+        if (!XAuth.user.isRole()) {
+            lblBillMana.setVisible(false);
+            lblPromo.setVisible(false);
+            lblTotalMn.setVisible(false);
+            lblUserMana.setVisible(false);
         }
+    }
+
+    private void updateActiveLabel(javax.swing.JLabel activeLabel) {
+        lblProduct.setForeground(java.awt.Color.BLACK);
+        lblBill.setForeground(java.awt.Color.BLACK);
+        lblBillMana.setForeground(java.awt.Color.BLACK);
+        lblUserMana.setForeground(java.awt.Color.BLACK);
+        lblPromo.setForeground(java.awt.Color.BLACK);
+        lblTotalMn.setForeground(java.awt.Color.BLACK);
+
+        activeLabel.setForeground(new java.awt.Color(153, 51, 0));
+    }
+
+    private void setCardLayout() {
+        cardLayout = (CardLayout) pnlCenter.getLayout();
+        pnlCenter.add(cardProduct, "product");
+        pnlCenter.add(cardBill, "bill");
+        // add pnlCenter các form
+        
+        cardLayout.show(pnlCenter, "product");
+    }
+
+    private void updateUser() {
+        String roleText = XAuth.user.isRole() ? "Quản lý" : "Nhân viên";
+        lblRole.setText(XAuth.user.getFullname()+ " - " + roleText);
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblPhoto = new javax.swing.JLabel();
-        lblRole = new javax.swing.JLabel();
-        btnLogout = new javax.swing.JButton();
-        btnChangePass = new javax.swing.JButton();
-        tabs = new javax.swing.JTabbedPane();
-        pnlUser = new javax.swing.JPanel();
-        pnlManager = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        pnlHeader = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        lblRole = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        pnlLeft = new javax.swing.JPanel();
+        lblProduct = new javax.swing.JLabel();
+        lblBill = new javax.swing.JLabel();
+        lblBillMana = new javax.swing.JLabel();
+        lblUserMana = new javax.swing.JLabel();
+        lblPromo = new javax.swing.JLabel();
+        lblTotalMn = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        pnlCenter = new javax.swing.JPanel();
+        pnlProduct = new javax.swing.JPanel();
+        pnlBill = new javax.swing.JPanel();
+        pnlBillMana = new javax.swing.JPanel();
+        pnlUserMana = new javax.swing.JPanel();
+        pnlPromo = new javax.swing.JPanel();
+        pnlTotalMn = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        lblPhoto.setBackground(new java.awt.Color(255, 255, 51));
-        lblPhoto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblPhoto.setText("Hình ảnh");
-        lblPhoto.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
-        lblRole.setText("Nhân viên");
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Hình ảnh");
 
-        btnLogout.setText("Đăng xuất");
+        lblRole.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        lblRole.setForeground(new java.awt.Color(255, 0, 0));
+        lblRole.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        btnChangePass.setText("Đổi mật khẩu");
+        jButton1.setText("Đăng xuất");
 
-        tabs.setTabPlacement(javax.swing.JTabbedPane.LEFT);
+        jButton2.setText("Đổi mật khẩu");
 
-        javax.swing.GroupLayout pnlUserLayout = new javax.swing.GroupLayout(pnlUser);
-        pnlUser.setLayout(pnlUserLayout);
-        pnlUserLayout.setHorizontalGroup(
-            pnlUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
+        javax.swing.GroupLayout pnlHeaderLayout = new javax.swing.GroupLayout(pnlHeader);
+        pnlHeader.setLayout(pnlHeaderLayout);
+        pnlHeaderLayout.setHorizontalGroup(
+            pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlHeaderLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
+                .addComponent(lblRole, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(53, 53, 53)
+                .addComponent(jButton2)
+                .addGap(18, 18, 18)
+                .addComponent(jButton1)
+                .addContainerGap())
         );
-        pnlUserLayout.setVerticalGroup(
-            pnlUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
-        );
-
-        tabs.addTab("Sản phẩm", pnlUser);
-
-        javax.swing.GroupLayout pnlManagerLayout = new javax.swing.GroupLayout(pnlManager);
-        pnlManager.setLayout(pnlManagerLayout);
-        pnlManagerLayout.setHorizontalGroup(
-            pnlManagerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
-        );
-        pnlManagerLayout.setVerticalGroup(
-            pnlManagerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
-        );
-
-        tabs.addTab("Đơn hàng", pnlManager);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
+        pnlHeaderLayout.setVerticalGroup(
+            pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlHeaderLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblRole, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton1)
+                        .addComponent(jButton2)))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
-        tabs.addTab("Quản lý sản phẩm", jPanel1);
+        jPanel1.add(pnlHeader, java.awt.BorderLayout.PAGE_START);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
+        pnlLeft.setBackground(new java.awt.Color(102, 255, 204));
+
+        lblProduct.setBackground(new java.awt.Color(255, 255, 255));
+        lblProduct.setForeground(new java.awt.Color(0, 0, 0));
+        lblProduct.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblProduct.setText("Sản phẩm");
+        lblProduct.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblProductMouseClicked(evt);
+            }
+        });
+
+        lblBill.setBackground(new java.awt.Color(255, 255, 255));
+        lblBill.setForeground(new java.awt.Color(0, 0, 0));
+        lblBill.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblBill.setText("Lịch sử đơn hàng");
+        lblBill.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblBillMouseClicked(evt);
+            }
+        });
+
+        lblBillMana.setBackground(new java.awt.Color(255, 255, 255));
+        lblBillMana.setForeground(new java.awt.Color(0, 0, 0));
+        lblBillMana.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblBillMana.setText("Quản lý đơn hàng");
+        lblBillMana.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblBillManaMouseClicked(evt);
+            }
+        });
+
+        lblUserMana.setBackground(new java.awt.Color(255, 255, 255));
+        lblUserMana.setForeground(new java.awt.Color(0, 0, 0));
+        lblUserMana.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblUserMana.setText("Quản lý nhân viên");
+        lblUserMana.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblUserManaMouseClicked(evt);
+            }
+        });
+
+        lblPromo.setBackground(new java.awt.Color(255, 255, 255));
+        lblPromo.setForeground(new java.awt.Color(0, 0, 0));
+        lblPromo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPromo.setText("Quản lý khuyến mãi");
+        lblPromo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPromoMouseClicked(evt);
+            }
+        });
+
+        lblTotalMn.setBackground(new java.awt.Color(255, 255, 255));
+        lblTotalMn.setForeground(new java.awt.Color(0, 0, 0));
+        lblTotalMn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTotalMn.setText("Doanh thu");
+        lblTotalMn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblTotalMnMouseClicked(evt);
+            }
+        });
+
+        jButton3.setText("Thoát");
+
+        javax.swing.GroupLayout pnlLeftLayout = new javax.swing.GroupLayout(pnlLeft);
+        pnlLeft.setLayout(pnlLeftLayout);
+        pnlLeftLayout.setHorizontalGroup(
+            pnlLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlLeftLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblProduct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblBill, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblBillMana, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblUserMana, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblPromo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblTotalMn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
+        pnlLeftLayout.setVerticalGroup(
+            pnlLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlLeftLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblProduct)
+                .addGap(18, 18, 18)
+                .addComponent(lblBill)
+                .addGap(18, 18, 18)
+                .addComponent(lblBillMana)
+                .addGap(18, 18, 18)
+                .addComponent(lblUserMana)
+                .addGap(18, 18, 18)
+                .addComponent(lblPromo)
+                .addGap(18, 18, 18)
+                .addComponent(lblTotalMn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
+                .addComponent(jButton3)
+                .addContainerGap())
         );
 
-        tabs.addTab("Quản lý khuyến mãi", jPanel2);
+        jPanel1.add(pnlLeft, java.awt.BorderLayout.LINE_START);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
-        );
+        pnlCenter.setLayout(new java.awt.CardLayout());
 
-        tabs.addTab("Quản lý hóa đơn", jPanel3);
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
+        javax.swing.GroupLayout pnlProductLayout = new javax.swing.GroupLayout(pnlProduct);
+        pnlProduct.setLayout(pnlProductLayout);
+        pnlProductLayout.setHorizontalGroup(
+            pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
+        pnlProductLayout.setVerticalGroup(
+            pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
         );
 
-        tabs.addTab("Thống kê doanh thu", jPanel4);
+        pnlCenter.add(pnlProduct, "card2");
+
+        javax.swing.GroupLayout pnlBillLayout = new javax.swing.GroupLayout(pnlBill);
+        pnlBill.setLayout(pnlBillLayout);
+        pnlBillLayout.setHorizontalGroup(
+            pnlBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
+        );
+        pnlBillLayout.setVerticalGroup(
+            pnlBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+
+        pnlCenter.add(pnlBill, "card3");
+
+        javax.swing.GroupLayout pnlBillManaLayout = new javax.swing.GroupLayout(pnlBillMana);
+        pnlBillMana.setLayout(pnlBillManaLayout);
+        pnlBillManaLayout.setHorizontalGroup(
+            pnlBillManaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
+        );
+        pnlBillManaLayout.setVerticalGroup(
+            pnlBillManaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+
+        pnlCenter.add(pnlBillMana, "card4");
+
+        javax.swing.GroupLayout pnlUserManaLayout = new javax.swing.GroupLayout(pnlUserMana);
+        pnlUserMana.setLayout(pnlUserManaLayout);
+        pnlUserManaLayout.setHorizontalGroup(
+            pnlUserManaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
+        );
+        pnlUserManaLayout.setVerticalGroup(
+            pnlUserManaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+
+        pnlCenter.add(pnlUserMana, "card5");
+
+        javax.swing.GroupLayout pnlPromoLayout = new javax.swing.GroupLayout(pnlPromo);
+        pnlPromo.setLayout(pnlPromoLayout);
+        pnlPromoLayout.setHorizontalGroup(
+            pnlPromoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
+        );
+        pnlPromoLayout.setVerticalGroup(
+            pnlPromoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+
+        pnlCenter.add(pnlPromo, "card6");
+
+        javax.swing.GroupLayout pnlTotalMnLayout = new javax.swing.GroupLayout(pnlTotalMn);
+        pnlTotalMn.setLayout(pnlTotalMnLayout);
+        pnlTotalMnLayout.setHorizontalGroup(
+            pnlTotalMnLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 670, Short.MAX_VALUE)
+        );
+        pnlTotalMnLayout.setVerticalGroup(
+            pnlTotalMnLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+
+        pnlCenter.add(pnlTotalMn, "card7");
+
+        jPanel1.add(pnlCenter, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -135,40 +323,49 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabs)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblPhoto, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblRole)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnChangePass)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnLogout)))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPhoto, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblRole)
-                    .addComponent(btnLogout)
-                    .addComponent(btnChangePass))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
-
-        tabs.getAccessibleContext().setAccessibleName("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
+    private void lblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblProductMouseClicked
+        cardLayout.show(pnlCenter, "product");
+        updateActiveLabel(lblProduct);
+    }//GEN-LAST:event_lblProductMouseClicked
+
+    private void lblBillMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBillMouseClicked
+        cardLayout.show(pnlCenter, "bill");
+        updateActiveLabel(lblBill);
+    }//GEN-LAST:event_lblBillMouseClicked
+
+    private void lblBillManaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBillManaMouseClicked
+        cardLayout.show(pnlBillMana, "card4");
+        updateActiveLabel(lblBillMana);
+    }//GEN-LAST:event_lblBillManaMouseClicked
+
+    private void lblUserManaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblUserManaMouseClicked
+        cardLayout.show(pnlUserMana, "card5");
+        updateActiveLabel(lblUserMana);
+    }//GEN-LAST:event_lblUserManaMouseClicked
+
+    private void lblPromoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPromoMouseClicked
+        cardLayout.show(pnlPromo, "card6");
+        updateActiveLabel(lblPromo);
+    }//GEN-LAST:event_lblPromoMouseClicked
+
+    private void lblTotalMnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTotalMnMouseClicked
+        cardLayout.show(pnlTotalMn, "card7");
+        updateActiveLabel(lblTotalMn);    }//GEN-LAST:event_lblTotalMnMouseClicked
+
     public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -203,16 +400,26 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnChangePass;
-    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JLabel lblPhoto;
+    private javax.swing.JLabel lblBill;
+    private javax.swing.JLabel lblBillMana;
+    private javax.swing.JLabel lblProduct;
+    private javax.swing.JLabel lblPromo;
     private javax.swing.JLabel lblRole;
-    private javax.swing.JPanel pnlManager;
-    private javax.swing.JPanel pnlUser;
-    private javax.swing.JTabbedPane tabs;
+    private javax.swing.JLabel lblTotalMn;
+    private javax.swing.JLabel lblUserMana;
+    private javax.swing.JPanel pnlBill;
+    private javax.swing.JPanel pnlBillMana;
+    private javax.swing.JPanel pnlCenter;
+    private javax.swing.JPanel pnlHeader;
+    private javax.swing.JPanel pnlLeft;
+    private javax.swing.JPanel pnlProduct;
+    private javax.swing.JPanel pnlPromo;
+    private javax.swing.JPanel pnlTotalMn;
+    private javax.swing.JPanel pnlUserMana;
     // End of variables declaration//GEN-END:variables
 }

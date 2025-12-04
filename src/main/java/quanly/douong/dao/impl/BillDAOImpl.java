@@ -8,8 +8,8 @@ import quanly.douong.util.XQuery;
 import java.util.List;
 
 public class BillDAOImpl implements BillDAO {
-    String createSql = "INSERT INTO Bills (Username, CardId, Checkin, Checkout, Status) VALUES (?,?,?,?,?)";
-    String updateSql = "UPDATE Bills set BillId = ?, Total = ?, StartDate = ?, Status = ? WHERE BillId = ?";
+    String createSql = "INSERT INTO Bills (Total, StartDate, Status, Username, PromotionId, CustomerId) VALUES (?, ?, ?, ?, ?, ?)";
+    String updateSql = "UPDATE Bills set Total = ?, Status = ? WHERE BillId = ?";
     String deleteSql = "DELETE FROM Bills Where BillId=?";
     String findAllSql = "SELECT * FROM Bills";
     String findByIdSql = "SELECT * FROM Bills WHERE BillId=?";
@@ -18,10 +18,12 @@ public class BillDAOImpl implements BillDAO {
     @Override
     public Bill create(Bill entity) {
         Object[] values = {
-                entity.getBillId(),
                 entity.getTotal(),
                 entity.getStartDate(),
-                entity.isStatus()
+                entity.isStatus(),
+                entity.getUsername(),
+                entity.getPromotionId(),
+                entity.getCustomerId()
         };
         XJdbc.executeUpdate(createSql, values);
         return entity;
@@ -30,9 +32,7 @@ public class BillDAOImpl implements BillDAO {
     @Override
     public void update(Bill entity) {
         Object[] values = {
-                entity.getBillId(),
                 entity.getTotal(),
-                entity.getStartDate(),
                 entity.isStatus(),
                 entity.getBillId()
         };

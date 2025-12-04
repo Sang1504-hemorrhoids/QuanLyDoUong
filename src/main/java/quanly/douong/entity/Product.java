@@ -13,10 +13,8 @@ public class Product {
     private String productId;
     private String name;
     private Integer quantity;
-    private Float salePrice;
-    private Float costPrice;
+    private Double costPrice;
     private boolean status;
     private String categoryId;
-    private String id;
     
 }

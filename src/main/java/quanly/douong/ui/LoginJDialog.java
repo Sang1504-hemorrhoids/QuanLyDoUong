@@ -40,6 +40,11 @@ public class LoginJDialog extends javax.swing.JDialog implements LoginController
             } else {
                 XAuth.user = user;
                 this.dispose();
+
+                java.awt.EventQueue.invokeLater(() -> {
+                    ManagerDrinkJFrame managerDrinkJFrame = new ManagerDrinkJFrame();
+                    managerDrinkJFrame.setVisible(true);
+                });
             }
         }
     }

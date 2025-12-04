@@ -19,7 +19,7 @@ public class UserDAOImpl implements UserDAO {
         Object[] values = {
                 entity.getUsername(),
                 entity.getPassword(),
-                entity.getFullName(),
+                entity.getFullname(),
                 entity.isRole(),
                 entity.isStatus()
         };
@@ -31,7 +31,7 @@ public class UserDAOImpl implements UserDAO {
     public void update(User entity) {
         Object[] values = {
                 entity.getPassword(),
-                entity.getFullName(),
+                entity.getFullname(),
                 entity.isRole(),
                 entity.isStatus(),
                 entity.getUsername()

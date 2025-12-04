@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class BillDetail {
-    private String billDetailId;
+    private Long billDetailId;
     private Integer quantity;
-    private Float unitPrice;
-    private String billId;
+    private Double unitPrice;
+    private Long billId;
     private String productId;
-    private String id;
 }

@@ -14,14 +14,6 @@ public interface ManagerDrinkController {
         dialog.setVisible(true);
     }
 
-    default void showWelcomeJDialog(JFrame frame) {
-        this.showJDialog(new WelcomeJDialog(frame, true));
-    }
-
-    default void showLoginJDialog(JFrame frame) {
-        this.showJDialog(new LoginJDialog(frame, false));
-    }
-
     default void showUserManagerJDialog(JFrame frame) {
         this.showJDialog(new UserManagerJDialog(frame, true));
     }

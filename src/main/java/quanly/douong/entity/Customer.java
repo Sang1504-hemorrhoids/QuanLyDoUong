@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class Customer {
-    private String customerId;
+    private Integer customerId;
     private String customerName;
     private Integer phoneNumber;
     private String address;

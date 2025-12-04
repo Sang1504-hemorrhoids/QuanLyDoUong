@@ -12,11 +12,11 @@ import java.util.Date;
 @Data
 @Builder
 public class Bill {
-    private String billId;
-    private Float total;
+    private Long billId;
+    private Double total;
     private Date startDate;
     private boolean status;
-    private String userId;
+    private String username;
     private String promotionId;
-    private String customerId;
+    private Integer customerId;
 }
