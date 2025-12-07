@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-import lombok.Setter;
 import quanly.douong.dao.BillDAO;
 import quanly.douong.dao.ProductDAO;
 import quanly.douong.dao.impl.BillDAOImpl;
@@ -45,6 +44,11 @@ public class ProductJPanel extends javax.swing.JPanel {
         });
     }
     
+    public void fillBillDetail() {
+        DefaultTableModel model = (DefaultTableModel) tbl.getModel();
+        model.setRowCount(0);
+    }
+    
     public void order() {
         Product entity = products.get(tblProduct.getSelectedRow());
         newBill();
@@ -64,6 +68,9 @@ public class ProductJPanel extends javax.swing.JPanel {
                 detail.setProductId(entity.getProductId());
                 new BillDetailDAOImpl().create(detail);
 
+                /* chưa add mã khuyến mãi
+                chưa gộp số lượng nếu cùng loại nước
+                 */
                 double total = currentBill.getTotal() + quantity * entity.getCostPrice();
                 currentBill.setTotal(total);
                 billDAO.update(currentBill);
@@ -88,9 +95,8 @@ public class ProductJPanel extends javax.swing.JPanel {
             currentBill.setCustomerId(1);
             billDAO.create(currentBill);
 
-            Bill bill = new Bill();
             String findLastIdSql = "SELECT TOP 1 BillId FROM Bills ORDER BY BillId DESC";
-            bill = XQuery.getSingleBean(Bill.class, findLastIdSql);
+            Bill bill = XQuery.getSingleBean(Bill.class, findLastIdSql);
 
             Long newId = bill.getBillId();
             currentBill.setBillId(newId);
@@ -108,12 +114,14 @@ public class ProductJPanel extends javax.swing.JPanel {
         rdoCate = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblProduct = new javax.swing.JTable();
-        pnlDetail = new javax.swing.JPanel();
+        pnlBillDetail = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        pnl = new javax.swing.JPanel();
         header = new javax.swing.JPanel();
         btnPay = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tblBill = new javax.swing.JTable();
+        tbl = new javax.swing.JTable();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -147,24 +155,44 @@ public class ProductJPanel extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(tblProduct);
 
+        jLabel3.setText("Hóa đơn");
+
+        javax.swing.GroupLayout pnlBillDetailLayout = new javax.swing.GroupLayout(pnlBillDetail);
+        pnlBillDetail.setLayout(pnlBillDetailLayout);
+        pnlBillDetailLayout.setHorizontalGroup(
+            pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlBillDetailLayout.createSequentialGroup()
+                .addContainerGap(249, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(188, 188, 188))
+        );
+        pnlBillDetailLayout.setVerticalGroup(
+            pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlBillDetailLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jLabel3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout pnlProductLayout = new javax.swing.GroupLayout(pnlProduct);
         pnlProduct.setLayout(pnlProductLayout);
         pnlProductLayout.setHorizontalGroup(
             pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlProductLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(pnlProductLayout.createSequentialGroup()
-                        .addGap(0, 448, Short.MAX_VALUE)
                         .addComponent(jLabel2)
-                        .addGap(368, 368, 368)
+                        .addGap(278, 278, 278)
                         .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1))
-                .addContainerGap())
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(pnlBillDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(7, Short.MAX_VALUE))
         );
         pnlProductLayout.setVerticalGroup(
             pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlProductLayout.createSequentialGroup()
+            .addGroup(pnlProductLayout.createSequentialGroup()
                 .addContainerGap(18, Short.MAX_VALUE)
                 .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -172,11 +200,14 @@ public class ProductJPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlProductLayout.createSequentialGroup()
+                .addComponent(pnlBillDetail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         tabs.addTab("Sản phẩm", pnlProduct);
 
-        pnlDetail.setLayout(new java.awt.BorderLayout());
+        pnl.setLayout(new java.awt.BorderLayout());
 
         btnPay.setText("Thanh toán");
 
@@ -202,9 +233,9 @@ public class ProductJPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        pnlDetail.add(header, java.awt.BorderLayout.LINE_END);
+        pnl.add(header, java.awt.BorderLayout.LINE_END);
 
-        tblBill.setModel(new javax.swing.table.DefaultTableModel(
+        tbl.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -230,13 +261,13 @@ public class ProductJPanel extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(tblBill);
+        jScrollPane2.setViewportView(tbl);
 
-        pnlDetail.add(jScrollPane2, java.awt.BorderLayout.PAGE_END);
+        pnl.add(jScrollPane2, java.awt.BorderLayout.PAGE_END);
 
-        tabs.addTab("Hóa đơn", pnlDetail);
+        tabs.addTab("Hóa đơn", pnl);
 
-        add(tabs, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        add(tabs, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1170, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
@@ -251,13 +282,15 @@ public class ProductJPanel extends javax.swing.JPanel {
     private javax.swing.JPanel header;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JPanel pnlDetail;
+    private javax.swing.JPanel pnl;
+    private javax.swing.JPanel pnlBillDetail;
     private javax.swing.JPanel pnlProduct;
     private javax.swing.JComboBox<String> rdoCate;
     private javax.swing.JTabbedPane tabs;
-    private javax.swing.JTable tblBill;
+    private javax.swing.JTable tbl;
     private javax.swing.JTable tblProduct;
     // End of variables declaration//GEN-END:variables
 }

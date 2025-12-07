@@ -4,9 +4,6 @@ import quanly.douong.controller.WelcomeController;
 
 public class WelcomeJDialog extends javax.swing.JDialog implements WelcomeController {
 
-    /**
-     * Creates new form WellcomeJDialog
-     */
     public WelcomeJDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();

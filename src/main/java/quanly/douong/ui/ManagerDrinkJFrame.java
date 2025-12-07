@@ -5,6 +5,7 @@ import quanly.douong.controller.ManagerDrinkController;
 import quanly.douong.util.XAuth;
 
 import java.awt.*;
+import javax.swing.JOptionPane;
 import quanly.douong.ui.manager.ProductJPanel;
 import quanly.douong.ui.user.BillJPanel;
 
@@ -70,8 +71,8 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
         pnlHeader = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lblRole = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
+        btnChange = new javax.swing.JButton();
         pnlLeft = new javax.swing.JPanel();
         lblProduct = new javax.swing.JLabel();
         lblBill = new javax.swing.JLabel();
@@ -99,9 +100,19 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
         lblRole.setForeground(new java.awt.Color(255, 0, 0));
         lblRole.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        jButton1.setText("Đăng xuất");
+        btnLogout.setText("Đăng xuất");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Đổi mật khẩu");
+        btnChange.setText("Đổi mật khẩu");
+        btnChange.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnChangeActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlHeaderLayout = new javax.swing.GroupLayout(pnlHeader);
         pnlHeader.setLayout(pnlHeaderLayout);
@@ -113,9 +124,9 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
                 .addComponent(lblRole, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53)
-                .addComponent(jButton2)
+                .addComponent(btnChange)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addComponent(btnLogout)
                 .addContainerGap())
         );
         pnlHeaderLayout.setVerticalGroup(
@@ -126,8 +137,8 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
                     .addComponent(lblRole, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton1)
-                        .addComponent(jButton2)))
+                        .addComponent(btnLogout)
+                        .addComponent(btnChange)))
                 .addContainerGap(28, Short.MAX_VALUE))
         );
 
@@ -366,6 +377,22 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
         cardLayout.show(pnlTotalMn, "card7");
         updateActiveLabel(lblTotalMn);    }//GEN-LAST:event_lblTotalMnMouseClicked
 
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có muốn đăng xuất?", "Đăng xuất", JOptionPane.YES_NO_OPTION);
+        if(confirm == JOptionPane.YES_NO_OPTION) {
+            this.dispose();
+            LoginJDialog login = new LoginJDialog(null, true);
+            login.open();
+            login.setVisible(true);
+        }
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeActionPerformed
+       ChangePasswordJDialog changePassword = new ChangePasswordJDialog(null, true);
+       changePassword.open();
+       changePassword.setVisible(true);
+    }//GEN-LAST:event_btnChangeActionPerformed
+
     public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -400,8 +427,8 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnChange;
+    private javax.swing.JButton btnLogout;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
