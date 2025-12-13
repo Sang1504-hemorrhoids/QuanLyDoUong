@@ -9,6 +9,7 @@ import java.util.List;
 
 public class BillDetailDAOImpl implements BillDetailDAO {
     String createSql = "INSERT INTO BillDetails (Quantity, UnitPrice, BillId, ProductId) VALUES (?, ?, ?, ?)";
+    String deleteSql = "DELETE FROM BillDetails WHERE BillId = ?";
     String findAllSql = "SELECT * FROM BillDetails";
 
     @Override
@@ -30,7 +31,7 @@ public class BillDetailDAOImpl implements BillDetailDAO {
 
     @Override
     public void deleteById(String s) {
-
+        XJdbc.executeUpdate(deleteSql, s);
     }
 
     @Override

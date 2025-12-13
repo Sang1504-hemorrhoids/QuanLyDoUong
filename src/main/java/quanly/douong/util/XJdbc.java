@@ -117,4 +117,26 @@ public class XJdbc {
         }
         return stmt;
     }
+
+    // Get key auto_increment
+    public static int executeInsertAndGetId(String sql, Object... args) {
+        try (var conn = XJdbc.openConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }

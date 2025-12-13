@@ -1,106 +1,273 @@
 package quanly.douong.ui.manager;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import lombok.Setter;
 import quanly.douong.dao.BillDAO;
 import quanly.douong.dao.ProductDAO;
+import quanly.douong.dao.PromotionDAO;
 import quanly.douong.dao.impl.BillDAOImpl;
 import quanly.douong.dao.impl.BillDetailDAOImpl;
 import quanly.douong.dao.impl.ProductDAOImpl;
-import quanly.douong.entity.Bill;
-import quanly.douong.entity.BillDetail;
-import quanly.douong.entity.Product;
+import quanly.douong.dao.impl.PromotionDAOImpl;
+import quanly.douong.entity.*;
+import quanly.douong.ui.user.CustomerJDialog;
 import quanly.douong.util.XAuth;
 import quanly.douong.util.XDialog;
 import quanly.douong.util.XQuery;
 
 public class ProductJPanel extends javax.swing.JPanel {
     ProductDAO productDAO = new ProductDAOImpl();
-    List<Product> products = List.of();
-    List<Bill> bills = List.of();
     BillDAO billDAO = new BillDAOImpl();
+    BillDetailDAOImpl billDetailDAO = new BillDetailDAOImpl();
+    PromotionDAO promotionDAO = new PromotionDAOImpl();
+
+    List<Product> products = new ArrayList<>();
+    List<Bill> bills = List.of();
+    List<BillDetail> cart = new ArrayList<>();
+    List<Promotion> promotions = new ArrayList<>();
+
     Bill currentBill;
+    Customer currentCustomer;
+    Promotion currentPromotion = new Promotion();
 
     public ProductJPanel() {
         initComponents();
+        initLoading();
         fillToProduct();
     }
-    
-    public void fillToProduct() {
+
+    private void initLoading() {
+        products = productDAO.findAll();
+        fillBillDetail();
+    }
+
+    private void fillToProduct() {
         DefaultTableModel model = (DefaultTableModel) tblProduct.getModel();
         model.setRowCount(0);
 
-        products = productDAO.findAll();
         products.forEach(item -> {
             Object[] row = {
-                item.getName(),
-                item.getQuantity() + " thùng",
-                item.getCostPrice(),
-                item.isStatus() ? "Còn hàng" : "Hết hàng"
+                    item.getName(),
+                    item.getQuantity() + " thùng",
+                    item.getCostPrice(),
+                    item.isStatus() ? "Còn hàng" : "Hết hàng"
             };
             model.addRow(row);
         });
     }
-    
-    public void fillBillDetail() {
-        DefaultTableModel model = (DefaultTableModel) tbl.getModel();
+
+    private void fillBillDetail() {
+        DefaultTableModel model = (DefaultTableModel) tblBillDetails.getModel();
         model.setRowCount(0);
+
+        for (BillDetail item : cart) {
+            Product product = productDAO.findById(item.getProductId());
+            double total = item.getQuantity() * item.getUnitPrice();
+            model.addRow(new Object[]{
+                    product.getName(),
+                    item.getUnitPrice(),
+                    item.getQuantity(),
+                    total,
+                    "+",
+                    "-"
+            });
+        }
     }
-    
-    public void order() {
+
+    private void order() {
         Product entity = products.get(tblProduct.getSelectedRow());
-        newBill();
-        if(!entity.isStatus()) {
+        if (!entity.isStatus()) {
             XDialog.alert("Hiện đã hết hàng!");
         } else {
             String quantityStr = XDialog.prompt("Số lượng?");
-            if(quantityStr == null || quantityStr.isBlank()) {
+            if (quantityStr == null || quantityStr.isBlank()) {
                 return;
-            } else{
-                int quantity = Integer.parseInt(quantityStr);
-                BillDetail detail = new BillDetail();
-                detail.setProductId(entity.getProductId());
-                detail.setQuantity(quantity);
-                detail.setUnitPrice(entity.getCostPrice());
-                detail.setBillId(currentBill.getBillId());
-                detail.setProductId(entity.getProductId());
-                new BillDetailDAOImpl().create(detail);
-
-                /* chưa add mã khuyến mãi
-                chưa gộp số lượng nếu cùng loại nước
-                 */
-                double total = currentBill.getTotal() + quantity * entity.getCostPrice();
-                currentBill.setTotal(total);
-                billDAO.update(currentBill);
-                XDialog.alert("Đã thêm vào đơn hàng thành công!");
+            } else {
+                try {
+                    int quantity = Integer.parseInt(quantityStr);
+                    addToCart(entity, quantity);
+                } catch (NumberFormatException e) {
+                    XDialog.alert("Số lượng không hợp lệ!");
+                    return;
+                }
             }
         }
     }
 
-    /*
-     Tạo bill mới (kiểm tra nếu query chưa có 1 hóa đơn nào)
-     bill = null -> BillId + 1
-     bill != null -> (last BillId) + 1
-     */
-    public void newBill() {
-        if(currentBill == null) {
-            currentBill = new Bill();
-            currentBill.setTotal(0d);
-            currentBill.setStartDate(new Date());
-            currentBill.setStatus(false);
-            currentBill.setUsername(XAuth.user.getUsername());
-            currentBill.setPromotionId("KM01");
-            currentBill.setCustomerId(1);
-            billDAO.create(currentBill);
+    private void addToCart(Product p, int quantity) {
+        if (quantity > p.getQuantity()) {
+            XDialog.alert("Sản phẩm không đủ số lượng!");
+            return;
+        }
 
-            String findLastIdSql = "SELECT TOP 1 BillId FROM Bills ORDER BY BillId DESC";
-            Bill bill = XQuery.getSingleBean(Bill.class, findLastIdSql);
+        // Trừ kho
+        p.setQuantity(p.getQuantity() - quantity);
 
-            Long newId = bill.getBillId();
-            currentBill.setBillId(newId);
-            System.out.println(currentBill.getBillId());
+        // Check kho
+        if (p.getQuantity() <= 0) {
+            p.setStatus(false);
+        }
+        for (BillDetail item : cart) {
+            if (item.getProductId().equals(p.getProductId())) {
+                item.setQuantity(item.getQuantity() + quantity);
+                fillToProduct();
+                fillBillDetail();
+                return;
+            }
+        }
+
+        BillDetail detail = new BillDetail();
+        detail.setProductId(p.getProductId());
+        detail.setQuantity(quantity);
+        detail.setUnitPrice(p.getCostPrice());
+
+        cart.add(detail);
+        fillToProduct();
+        fillBillDetail();
+        updateTotal();
+    }
+
+    private void handleQuantityButtons(int row, int col) {
+        if (row < 0) return;
+        if (row >= cart.size()) return;
+
+        BillDetail item = cart.get(row);
+        Product p = findProduct(item.getProductId());
+        if (col == 4) {         // nút +
+            if (p.getQuantity() == 0) {
+                XDialog.alert("Hàng đã hết!");
+                return;
+            }
+            item.setQuantity(item.getQuantity() + 1);
+            p.setQuantity(p.getQuantity() - 1);
+        } else if (col == 5) {    // nút -
+            if (item.getQuantity() >= 1) {
+                item.setQuantity(item.getQuantity() - 1);
+                p.setQuantity(p.getQuantity() + 1);
+                p.setStatus(true);
+
+                if (item.getQuantity() == 0) {
+                    cart.remove(row);
+                }
+            }
+        }
+
+        fillToProduct();
+        fillBillDetail();
+        updateTotal();
+    }
+
+    private void updateTotal() {
+        double total = calculateTotal();
+
+        DecimalFormat format = new DecimalFormat("#,###");
+        String formatted = format.format(total).replace(',', '.') + " VNĐ";
+        lblTotal.setText(formatted);
+    }
+
+    private double calculateTotal() {
+        double total = 0.0;
+        for (BillDetail item : cart) {
+            Product product = productDAO.findById(item.getProductId());
+            if (product != null) {
+                total += item.getQuantity() * item.getUnitPrice();
+            }
+        }
+        return total;
+    }
+
+    private Product findProduct(String productId) {
+        for (Product p : products) {
+            if (p.getProductId().equals(productId)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.currentCustomer = customer;
+    }
+
+    private void checkout() {
+        if (cart.isEmpty()) {
+            XDialog.alert("Giỏ hàng trống!");
+            return;
+        }
+
+        promotions = promotionDAO.findAll();
+
+        try {
+            for (Promotion promotion : promotions) {
+                if (promotion.isStatus()) {
+                    if (calculateTotal() >= 1_000_000) {
+                        currentPromotion = promotion;
+                        System.out.println(currentPromotion.getDiscount());
+                        break;
+                    }
+                }
+            }
+
+            //Tạo Bill
+            Bill bill = new Bill();
+            bill.setStartDate(new Date());
+            bill.setStatus(true);
+            bill.setTotal(0d);
+            bill.setUsername(XAuth.user.getUsername());
+            bill.setPromotionId(currentPromotion.getPromotionId());
+            bill.setCustomerId(currentCustomer.getCustomerId());
+            billDAO.create(bill);
+            currentBill = bill;
+
+            if (bill.getBillId() == null) {
+                XDialog.alert("Không tạo được hóa đơn, thử lại.");
+                return;
+            }
+
+            double total = 0;
+
+            // 2) Lưu từng BillDetail và cập nhật product DB
+            for (BillDetail item : new ArrayList<>(cart)) {
+                // set bill id
+                item.setBillId(bill.getBillId());
+
+                billDetailDAO.create(item);
+
+                // update product stock in DB
+                Product prodDb = productDAO.findById(item.getProductId());
+                if (prodDb != null) {
+                    prodDb.setQuantity(prodDb.getQuantity() - item.getQuantity());
+                    if (prodDb.getQuantity() <= 0) {
+                        prodDb.setQuantity(0);
+                        prodDb.setStatus(false);
+                    }
+                    productDAO.update(prodDb);
+                }
+
+                total += item.getQuantity() * item.getUnitPrice();
+            }
+
+            // 3) Update bill total
+            bill.setTotal(total - (currentPromotion.getDiscount() * total));
+            billDAO.update(bill);
+
+            XDialog.alert("Thanh toán thành công! Tổng: " + total + "Đ");
+
+            // 4) Reset memory and UI. Reload products from DB
+            cart.clear();
+            products = new ArrayList<>(productDAO.findAll());
+            fillBillDetail();
+            fillToProduct();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            XDialog.alert("Lỗi khi thanh toán: " + ex.getMessage());
         }
     }
 
@@ -108,7 +275,6 @@ public class ProductJPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        tabs = new javax.swing.JTabbedPane();
         pnlProduct = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         rdoCate = new javax.swing.JComboBox<>();
@@ -116,36 +282,35 @@ public class ProductJPanel extends javax.swing.JPanel {
         tblProduct = new javax.swing.JTable();
         pnlBillDetail = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        pnl = new javax.swing.JPanel();
-        header = new javax.swing.JPanel();
-        btnPay = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tbl = new javax.swing.JTable();
+        tblBillDetails = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        lblTotal = new javax.swing.JLabel();
+        btnPay = new javax.swing.JButton();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setText("Sản phẩm");
 
-        rdoCate.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        rdoCate.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Item 1", "Item 2", "Item 3", "Item 4"}));
 
         tblProduct.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Tên sản phẩm", "Số lượng còn lại", "Giá bán", "Trạng thái"
-            }
+                new Object[][]{
+                        {null, null, null, null},
+                        {null, null, null, null},
+                        {null, null, null, null},
+                        {null, null, null, null}
+                },
+                new String[]{
+                        "Tên sản phẩm", "Số lượng còn lại", "Giá bán", "Trạng thái"
+                }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
+            boolean[] canEdit = new boolean[]{
+                    false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+                return canEdit[columnIndex];
             }
         });
         tblProduct.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -155,142 +320,154 @@ public class ProductJPanel extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(tblProduct);
 
+        javax.swing.GroupLayout pnlProductLayout = new javax.swing.GroupLayout(pnlProduct);
+        pnlProduct.setLayout(pnlProductLayout);
+        pnlProductLayout.setHorizontalGroup(
+                pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(pnlProductLayout.createSequentialGroup()
+                                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(pnlProductLayout.createSequentialGroup()
+                                                .addGap(259, 259, 259)
+                                                .addComponent(jLabel2)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(pnlProductLayout.createSequentialGroup()
+                                                .addContainerGap()
+                                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)))
+                                .addContainerGap())
+        );
+        pnlProductLayout.setVerticalGroup(
+                pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(pnlProductLayout.createSequentialGroup()
+                                .addContainerGap(18, Short.MAX_VALUE)
+                                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel2)
+                                        .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(77, 77, 77))
+        );
+
+        add(pnlProduct, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 640, -1));
+
         jLabel3.setText("Hóa đơn");
+
+        tblBillDetails.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null},
+                        {null, null, null, null, null, null}
+                },
+                new String[]{
+                        "Tên sản phẩm", "Đơn giá", "Số lượng", "Tổng tiền", "+", "-"
+                }
+        ) {
+            boolean[] canEdit = new boolean[]{
+                    false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+        tblBillDetails.setSurrendersFocusOnKeystroke(true);
+        tblBillDetails.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblBillDetailsMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tblBillDetails);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setText("TỔNG: ");
+
+        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblTotal.setText("0.0Đ");
+
+        btnPay.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnPay.setText("Thanh toán");
+        btnPay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPayActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlBillDetailLayout = new javax.swing.GroupLayout(pnlBillDetail);
         pnlBillDetail.setLayout(pnlBillDetailLayout);
         pnlBillDetailLayout.setHorizontalGroup(
-            pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlBillDetailLayout.createSequentialGroup()
-                .addContainerGap(249, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(188, 188, 188))
+                pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlBillDetailLayout.createSequentialGroup()
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3)
+                                .addGap(226, 226, 226))
+                        .addGroup(pnlBillDetailLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 479, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(pnlBillDetailLayout.createSequentialGroup()
+                                                .addComponent(jLabel1)
+                                                .addGap(96, 96, 96)
+                                                .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(btnPay)))
+                                .addContainerGap(15, Short.MAX_VALUE))
         );
         pnlBillDetailLayout.setVerticalGroup(
-            pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlBillDetailLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(jLabel3)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(pnlBillDetailLayout.createSequentialGroup()
+                                .addGap(26, 26, 26)
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(pnlBillDetailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel1)
+                                        .addComponent(lblTotal)
+                                        .addComponent(btnPay))
+                                .addContainerGap(15, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout pnlProductLayout = new javax.swing.GroupLayout(pnlProduct);
-        pnlProduct.setLayout(pnlProductLayout);
-        pnlProductLayout.setHorizontalGroup(
-            pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlProductLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(pnlProductLayout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(278, 278, 278)
-                        .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(pnlBillDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(7, Short.MAX_VALUE))
-        );
-        pnlProductLayout.setVerticalGroup(
-            pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlProductLayout.createSequentialGroup()
-                .addContainerGap(18, Short.MAX_VALUE)
-                .addGroup(pnlProductLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(rdoCate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlProductLayout.createSequentialGroup()
-                .addComponent(pnlBillDetail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        tabs.addTab("Sản phẩm", pnlProduct);
-
-        pnl.setLayout(new java.awt.BorderLayout());
-
-        btnPay.setText("Thanh toán");
-
-        jLabel1.setText("Hóa đơn");
-
-        javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
-        header.setLayout(headerLayout);
-        headerLayout.setHorizontalGroup(
-            headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerLayout.createSequentialGroup()
-                .addContainerGap(432, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(343, 343, 343)
-                .addComponent(btnPay, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        headerLayout.setVerticalGroup(
-            headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerLayout.createSequentialGroup()
-                .addContainerGap(27, Short.MAX_VALUE)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnPay, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addContainerGap())
-        );
-
-        pnl.add(header, java.awt.BorderLayout.LINE_END);
-
-        tbl.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Tên sản phẩm", "Tổng tiền", "Thanh toán"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane2.setViewportView(tbl);
-
-        pnl.add(jScrollPane2, java.awt.BorderLayout.PAGE_END);
-
-        tabs.addTab("Hóa đơn", pnl);
-
-        add(tabs, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1170, -1));
+        add(pnlBillDetail, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 10, 500, 470));
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
-        if(evt.getClickCount() == 2) {
+        if (evt.getClickCount() == 2) {
             this.order();
         }
     }//GEN-LAST:event_tblProductMouseClicked
 
+    private void tblBillDetailsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblBillDetailsMouseClicked
+        int row = tblBillDetails.getSelectedRow();
+        int col = tblBillDetails.getSelectedColumn();
+        handleQuantityButtons(row, col);
+    }//GEN-LAST:event_tblBillDetailsMouseClicked
+
+    private void btnPayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPayActionPerformed
+        CustomerJDialog dialog = new CustomerJDialog(null, true);
+        dialog.open();
+        dialog.setVisible(true);
+        setCustomer(dialog.getCustomer());
+
+        if(!dialog.isConfirm()) {
+            return;
+        }
+        checkout();
+    }//GEN-LAST:event_btnPayActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPay;
-    private javax.swing.JPanel header;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JPanel pnl;
+    private javax.swing.JLabel lblTotal;
     private javax.swing.JPanel pnlBillDetail;
     private javax.swing.JPanel pnlProduct;
     private javax.swing.JComboBox<String> rdoCate;
-    private javax.swing.JTabbedPane tabs;
-    private javax.swing.JTable tbl;
+    private javax.swing.JTable tblBillDetails;
     private javax.swing.JTable tblProduct;
     // End of variables declaration//GEN-END:variables
 }

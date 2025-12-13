@@ -26,7 +26,10 @@ public class BillDAOImpl implements BillDAO {
                 entity.getPromotionId(),
                 entity.getCustomerId()
         };
-        XJdbc.executeUpdate(createSql, values);
+//        XJdbc.executeUpdate(createSql, values);
+
+        int generatedId = XJdbc.executeInsertAndGetId(createSql, values);
+        entity.setBillId((long) generatedId);
         return entity;
     }
 
