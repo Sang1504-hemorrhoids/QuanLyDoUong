@@ -113,7 +113,6 @@ public class CustomerJDialog extends javax.swing.JDialog implements CustomerCont
     }
 
     public void setEditable(boolean editable) {
-        btnCheck.setEnabled(!editable);
         pnlInf.setVisible(editable);
         txtCusName.setEnabled(!editable);
     }

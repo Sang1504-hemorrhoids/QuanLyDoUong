@@ -205,12 +205,11 @@ public class ProductJPanel extends javax.swing.JPanel {
 
         try {
             for (Promotion promotion : promotions) {
-                if (promotion.isStatus()) {
-                    if (calculateTotal() >= 1_000_000) {
-                        currentPromotion = promotion;
-                        System.out.println(currentPromotion.getDiscount());
-                        break;
-                    }
+                if (!promotion.isStatus()) continue;
+
+                if (calculateTotal() >= 1_000_000) {
+                    currentPromotion = promotion;
+                    System.out.println(currentPromotion.getDiscount());
                 }
             }
 
@@ -262,6 +261,7 @@ public class ProductJPanel extends javax.swing.JPanel {
             // 4) Reset memory and UI. Reload products from DB
             cart.clear();
             products = new ArrayList<>(productDAO.findAll());
+            updateTotal();
             fillBillDetail();
             fillToProduct();
 
@@ -449,7 +449,7 @@ public class ProductJPanel extends javax.swing.JPanel {
         dialog.setVisible(true);
         setCustomer(dialog.getCustomer());
 
-        if(!dialog.isConfirm()) {
+        if (!dialog.isConfirm()) {
             return;
         }
         checkout();
