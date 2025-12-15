@@ -8,6 +8,9 @@ import java.util.List;
 
 public class PromotionDAOImpl implements PromotionDAO {
     String findAllSql = "SELECT * FROM Promotion";
+    String findPromotionSql = "SELECT * FROM Promotion " +
+            "WHERE Status = 1 AND GETDATE() BETWEEN StartDate AND EndDate " +
+                                                            "AND ? >= MinOrderTotal ORDER BY Discount DESC";
 
     @Override
     public Promotion create(Promotion entity) {
@@ -27,6 +30,11 @@ public class PromotionDAOImpl implements PromotionDAO {
     @Override
     public List<Promotion> findAll() {
         return XQuery.getBeanList(Promotion.class, findAllSql);
+    }
+
+    @Override
+    public Promotion findPromotion(double total) {
+        return XQuery.getSingleBean(Promotion.class, findPromotionSql, total);
     }
 
     @Override

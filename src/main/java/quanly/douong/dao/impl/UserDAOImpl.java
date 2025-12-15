@@ -8,8 +8,10 @@ import quanly.douong.util.XQuery;
 import java.util.List;
 
 public class UserDAOImpl implements UserDAO {
-    String createSql = "INSERT INTO Users (Username, Password, FullName, Role, Status) VALUES (?, ?, ?, ?, ?)";
-    String updateSql = "UPDATE USERS SET password = ?, FullName = ?, role = ?, status = ? WHERE Username = ?";
+    String createSql = "INSERT INTO Users (Username, Password, FullName, CitizenNumber,Role, Status) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
+    String updateSql = "UPDATE USERS SET Password = ?, FullName = ?, CitizenNumber = ?, Role = ?, Status = ? " +
+            "WHERE Username = ?";
     String deleteSql = "DELETE FROM USERS WHERE Username = ?";
     String findAllSql = "SELECT * FROM Users";
     String findByIdSql = "SELECT * FROM Users WHERE Username = ?";
@@ -20,6 +22,7 @@ public class UserDAOImpl implements UserDAO {
                 entity.getUsername(),
                 entity.getPassword(),
                 entity.getFullname(),
+                entity.getCitizenNumber(),
                 entity.isRole(),
                 entity.isStatus()
         };

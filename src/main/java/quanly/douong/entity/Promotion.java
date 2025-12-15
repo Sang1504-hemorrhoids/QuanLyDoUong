@@ -14,6 +14,7 @@ import java.util.Date;
 public class Promotion {
     private String promotionId;
     private String promoName;
+    private Double citizenNumber;
     private Double discount;
     private Date startDate;
     private Date endDate;

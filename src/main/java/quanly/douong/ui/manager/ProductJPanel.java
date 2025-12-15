@@ -34,7 +34,7 @@ public class ProductJPanel extends javax.swing.JPanel {
 
     Bill currentBill;
     Customer currentCustomer;
-    Promotion currentPromotion = new Promotion();
+    Promotion currentPromotion;
 
     public ProductJPanel() {
         initComponents();
@@ -204,22 +204,13 @@ public class ProductJPanel extends javax.swing.JPanel {
         promotions = promotionDAO.findAll();
 
         try {
-            for (Promotion promotion : promotions) {
-                if (!promotion.isStatus()) continue;
-
-                if (calculateTotal() >= 1_000_000) {
-                    currentPromotion = promotion;
-                    System.out.println(currentPromotion.getDiscount());
-                }
-            }
-
             //Tạo Bill
             Bill bill = new Bill();
             bill.setStartDate(new Date());
             bill.setStatus(true);
             bill.setTotal(0d);
             bill.setUsername(XAuth.user.getUsername());
-            bill.setPromotionId(currentPromotion.getPromotionId());
+            bill.setPromotionId("KM00");
             bill.setCustomerId(currentCustomer.getCustomerId());
             billDAO.create(bill);
             currentBill = bill;
@@ -249,18 +240,23 @@ public class ProductJPanel extends javax.swing.JPanel {
                     productDAO.update(prodDb);
                 }
 
+
                 total += item.getQuantity() * item.getUnitPrice();
             }
 
+            currentPromotion = promotionDAO.findPromotion(total);
+            bill.setPromotionId(currentPromotion.getPromotionId());
             // 3) Update bill total
-            bill.setTotal(total - (currentPromotion.getDiscount() * total));
+            total -= currentPromotion.getDiscount() * total;
+            bill.setTotal(total);
             billDAO.update(bill);
 
-            XDialog.alert("Thanh toán thành công! Tổng: " + total + "Đ");
+            XDialog.alert("Thanh toán thành công! Có khuyến mãi " + (currentPromotion.getDiscount() * 100) + "% Tổng: " + total + "Đ");
 
             // 4) Reset memory and UI. Reload products from DB
             cart.clear();
             products = new ArrayList<>(productDAO.findAll());
+            total = 0.0;
             updateTotal();
             fillBillDetail();
             fillToProduct();
