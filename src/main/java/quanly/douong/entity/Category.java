@@ -12,5 +12,8 @@ import lombok.NoArgsConstructor;
 public class Category {
     private String categoryId;
     private String name;
-    private String description;
+
+    public String toString() {
+        return name;
+    }
 }

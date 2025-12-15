@@ -1,12 +1,14 @@
 package quanly.douong.ui;
 
-import javax.swing.JFrame;
+import quanly.douong.ui.user.ProductJPanel;
+import javax.swing.*;
+
 import quanly.douong.controller.ManagerDrinkController;
+import quanly.douong.ui.manager.*;
 import quanly.douong.util.XAuth;
 
 import java.awt.*;
-import javax.swing.JOptionPane;
-import quanly.douong.ui.manager.ProductJPanel;
+
 import quanly.douong.ui.user.BillJPanel;
 
 public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDrinkController {
@@ -14,6 +16,10 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
     private CardLayout cardLayout;
     private ProductJPanel cardProduct = new ProductJPanel();
     private BillJPanel cardBill = new BillJPanel();
+    private BillManagerJPanel cardBillManager = new BillManagerJPanel();
+    private UserManagerJPane cardUser = new UserManagerJPane();
+    private PromotionJPanel cardPromotion = new PromotionJPanel();
+    private TotalBillJPanel cardTotal = new TotalBillJPanel();
 
     public ManagerDrinkJFrame() {
         initComponents();
@@ -32,9 +38,9 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
 
         if (!XAuth.user.isRole()) {
             lblBillMana.setVisible(false);
+            lblUserMana.setVisible(false);
             lblPromo.setVisible(false);
             lblTotalMn.setVisible(false);
-            lblUserMana.setVisible(false);
         }
     }
 
@@ -53,6 +59,10 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
         cardLayout = (CardLayout) pnlCenter.getLayout();
         pnlCenter.add(cardProduct, "product");
         pnlCenter.add(cardBill, "bill");
+        pnlCenter.add(cardBillManager, "billManager");
+        pnlCenter.add(cardUser, "user");
+        pnlCenter.add(cardPromotion, "promotion");
+        pnlCenter.add(cardTotal, "total");
         // add pnlCenter các form
         
         cardLayout.show(pnlCenter, "product");
@@ -207,6 +217,11 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
         });
 
         jButton3.setText("Thoát");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlLeftLayout = new javax.swing.GroupLayout(pnlLeft);
         pnlLeft.setLayout(pnlLeftLayout);
@@ -359,22 +374,22 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
     }//GEN-LAST:event_lblBillMouseClicked
 
     private void lblBillManaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBillManaMouseClicked
-        cardLayout.show(pnlBillMana, "card4");
+        cardLayout.show(pnlBillMana, "billManager");
         updateActiveLabel(lblBillMana);
     }//GEN-LAST:event_lblBillManaMouseClicked
 
     private void lblUserManaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblUserManaMouseClicked
-        cardLayout.show(pnlUserMana, "card5");
+        cardLayout.show(pnlUserMana, "user");
         updateActiveLabel(lblUserMana);
     }//GEN-LAST:event_lblUserManaMouseClicked
 
     private void lblPromoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPromoMouseClicked
-        cardLayout.show(pnlPromo, "card6");
+        cardLayout.show(pnlPromo, "promotion");
         updateActiveLabel(lblPromo);
     }//GEN-LAST:event_lblPromoMouseClicked
 
     private void lblTotalMnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTotalMnMouseClicked
-        cardLayout.show(pnlTotalMn, "card7");
+        cardLayout.show(pnlTotalMn, "total");
         updateActiveLabel(lblTotalMn);    }//GEN-LAST:event_lblTotalMnMouseClicked
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
@@ -392,6 +407,10 @@ public class ManagerDrinkJFrame extends javax.swing.JFrame implements ManagerDri
        changePassword.open();
        changePassword.setVisible(true);
     }//GEN-LAST:event_btnChangeActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     public static void main(String[] args) {
         /* Set the Nimbus look and feel */

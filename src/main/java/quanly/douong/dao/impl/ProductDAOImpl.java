@@ -12,6 +12,7 @@ public class ProductDAOImpl implements ProductDAO{
     String deleteSql = "DELETE FROM Products WHERE ProductId = ?";
     String findAllSql = "SELECT * FROM Products ";
     String findByIdSql = "SELECT * FROM Products WHERE ProductId = ?";
+    String findByCategorySql = "SELECT * FROM Products WHERE CategoryId = ?";
 
     @Override
     public Product create(Product entity) {
@@ -46,5 +47,9 @@ public class ProductDAOImpl implements ProductDAO{
     public Product findById(String id) {
         return XQuery.getSingleBean(Product.class, findByIdSql, id);
     }
-    
+
+    @Override
+    public List<Product> findProductByCategory(String categoryId) {
+        return XQuery.getBeanList(Product.class, findByCategorySql, categoryId);
+    }
 }
